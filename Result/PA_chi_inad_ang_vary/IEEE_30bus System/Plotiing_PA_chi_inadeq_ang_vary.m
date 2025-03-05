@@ -6,7 +6,8 @@ close all
 % load("PA_Chi_inadequate_weights_weg0.1.mat")
 % load("PA_Chi_inadequate_weights_weg2.mat")
 % load("PA_Chi_inadequate_weights_weig_0.1to2_baise_error.mat")
-load("PA_Chi_inadequate_weights_with_baise_error.mat")
+% load("PA_Chi_inadequate_weights_with_baise_error.mat")
+load("PA_Chi_inadequate_weights_ang_vary_with_baise_error_all_measurements.mat")
 
 
 % spf_ang_variation = 0:0.1:1;
