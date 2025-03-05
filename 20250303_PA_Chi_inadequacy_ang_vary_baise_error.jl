@@ -57,13 +57,13 @@ Z = All_bus_measurements[P]
 H_pmu = H[P]
 W_pmu = []
 
-# Standard deviations
+
+#####^^^^ Standard deviations ^^^######
 StandardDeviation_V = 0.001
 StandardDeviation_I = 0.002
 
-# Initialize variance matrix
+#####^^^^ Initialize variance matrix ^^^#####
 StandardDeviation_matrix = []
-
 for z_entry in Z
     sd = [StandardDeviation_V; fill(StandardDeviation_I, size(z_entry, 1) - 1)]
     push!(StandardDeviation_matrix, sd)
@@ -75,8 +75,25 @@ H_meas = vcat(H_pmu...)
 W_vect = vcat(W_pmu...)
 W = Diagonal(W_vect)
 Wanna_add_noise = "yes"
-Baise_error = 0.998899 - (1im*1.74e-4)
-# W_inad = copy(W_pmu)
+
+# MCF = -0.11/100;
+MCF = collect(-0.06:0.001:0.22)/100
+# PACF = -0.01
+PACF = collect(-0.018:0.001:0.014)
+# Baise_error = 0.998899 - (1im*1.74e-4)
+
+#####^^^^^^ Adding the Baise Error ^^^^^^######
+Z_pmu = copy(Z)
+
+# Z_pmu = [Baise_error*(Z[u]) for u in Np]
+
+for u in Np
+    Baise_error = (1-rand(MCF))*(cis(deg2rad(rand(PACF))))
+    println(Baise_error)
+    global Z_pmu[u] = ((Z_pmu[u])/Baise_error)
+end
+
+
 
 no_of_cases = 1 # for multiple cases
 monte_simulation = 1000
@@ -152,17 +169,17 @@ for spf_var in 1:Spf_var_length
         # NLS_RMSE_abs_monte = zeros(Float32, monte_simulation)
         # NLS_RMSE_ang_monte = zeros(Float32, monte_simulation)
 
+
         
         for monte in 1:monte_simulation
             println(monte)
             
             if Wanna_add_noise == "yes"
-                Z_pmu = [Baise_error*(Z[u]) + StandardDeviation_matrix[u] .*(randn(ComplexF64, size(Z[u])) + 1im * randn(ComplexF64, size(Z[u]))) for u in Np]
-                W_inad = [W_pmu[u].*rand(weig) for u in Np]
+               Z_pmu = [(Z[u]) + StandardDeviation_matrix[u] .*(randn(ComplexF64, size(Z[u])) + 1im * randn(ComplexF64, size(Z[u]))) for u in Np]
+               W_inad = [W_pmu[u].*rand(weig) for u in Np]
             else
                 Z_pmu = [Z[u] for u in Np]
             end
-
 
             W_inv = W^(-1/2)
             W_inv_sd = inv(W)
@@ -171,7 +188,6 @@ for spf_var in 1:Spf_var_length
             Z_spf = Spoofed_measurement_vector(Position_Spoofed_PMUs,Spoofing_angles,Z_pmu)
             V_pmu = [Z_spf[u][1] for u in Np]
             Z_meas = vcat(Z_spf...)
-            # Z_meas1 = vcat(Z_pmu...)
             m = length(Z_meas) # no of measurements
             Z_scal = W_inv*Z_meas
 
@@ -231,11 +247,6 @@ for spf_var in 1:Spf_var_length
             println("Chi square without weights : ", Chi_without_weights_monte[monte])
 
 
-
-
-        
-            
-        
             
         end
 
