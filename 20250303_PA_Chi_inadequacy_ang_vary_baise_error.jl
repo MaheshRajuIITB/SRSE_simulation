@@ -77,23 +77,37 @@ W = Diagonal(W_vect)
 Wanna_add_noise = "yes"
 
 # MCF = -0.11/100;
-MCF = collect(-0.06:0.001:0.22)/100
-# PACF = -0.01
-PACF = collect(-0.018:0.001:0.014)
-# Baise_error = 0.998899 - (1im*1.74e-4)
+# MCF = collect(-0.06:0.001:0.22)/100
+# # MCF = collect(-1:0.001:1)/100
+# # PACF = -0.01
+# PACF = collect(-0.018:0.001:0.014)
+# # PACF = collect(-1:0.001:1)
+# # Baise_error = 0.998899 - (1im*1.74e-4)
 
-#####^^^^^^ Adding the Baise Error ^^^^^^######
-Z_pmu = copy(Z)
+# ####^^^^^^ Adding the Baise Error ^^^^^^######
+# # Z_pmu = copy(Z)
 
-# Z_pmu = [Baise_error*(Z[u]) for u in Np]
+# # # Z_pmu = [Baise_error*(Z[u]) for u in Np]
 
-for u in Np
-    Baise_error = (1-rand(MCF))*(cis(deg2rad(rand(PACF))))
-    println(Baise_error)
-    global Z_pmu[u] = ((Z_pmu[u])/Baise_error)
+# for u in rand(Np,3)
+#     # Baise_error = 1
+#     Baise_error = (1-rand(MCF))*(cis(deg2rad(rand(PACF))))
+#     println("Baise error : ", Baise_error)
+#     global Z[u] = ((Z[u]).*Baise_error)
+# end
+
+MCF =[0.95 1.02 0.97]
+PACF = [0.5 -0.5 -1.2]
+No_of_PMUS_are_having_high_baise_error = 2
+# PMUs_CVT_error = sample(1:length(P),No_of_PMUS_are_having_high_baise_error,replace=false)
+PMUs_CVT_error = [5]
+Baise_error = [(1/MCF[o])*(cis(deg2rad(PACF[o]))) for o in 1:length(MCF)]
+
+
+
+for u in 1:length(PMUs_CVT_error)
+    global Z[PMUs_CVT_error[u]][1] = ((Z[PMUs_CVT_error[u]][1])*Baise_error[u])
 end
-
-
 
 no_of_cases = 1 # for multiple cases
 monte_simulation = 1000
@@ -111,7 +125,7 @@ Spf_var_length = length(Spf_angle)
 
 
 weig = collect(0.1:0.1:2)
-# # weig = collect(1:2)
+# weig = collect(1:2)
 # weig = collect(0.1:0.1:0.9)
 
 
@@ -220,7 +234,7 @@ for spf_var in 1:Spf_var_length
             
 
             ##### Linear State Estimation with correct weights
-            println("The weight matrix : \n", W_vect)
+            # println("The weight matrix : \n", W_vect)
             V_estimation = H_scal \ Z_scal
             Residula_vector = Z_meas - (H_meas*V_estimation)
 
@@ -230,7 +244,7 @@ for spf_var in 1:Spf_var_length
 
 
             ##### Linear State Estimation with inadequate weights
-            println("The inadequate weight matrix :\n", W_inad_vect)
+            # println("The inadequate weight matrix :\n", W_inad_vect)
             V_estimation_inad = H_scal_inad \ Z_scal_inad
             Residula_vector_inad = Z_meas - (H_meas*V_estimation_inad)
 
@@ -300,4 +314,5 @@ dict_data = Dict(
     "Chi_without_weights" => Chi_without_weights
 
     )
-matwrite("res_$(today_date)_PA_Chi_inadequate_weights_ang_vary_IEEE_$(Test_system).mat", dict_data)
+# matwrite("res_$(today_date)_PA_Chi_inadequate_weights_ang_vary_IEEE_$(Test_system).mat", dict_data)
+matwrite("PA_Chi_inadequate_weights_baise_error.mat", dict_data)
