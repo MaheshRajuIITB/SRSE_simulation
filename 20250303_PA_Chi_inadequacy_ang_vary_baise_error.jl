@@ -12,7 +12,7 @@ if Test_system == 14
     data = matread("data_20250104_IEEE_14bus.mat")
     P = [2, 4, 6 ,7 ,10 ,14]
     PA_threshold = 0.1080
-    no_of_spoofed_PMUs = [0 1 1 2 2 3 3 4 5 5 6] #for 30 bus system
+    no_of_spoofed_PMUs = [0 1 1 2 2 3 3 4 5 5 6] #for 14 bus system
 
 elseif Test_system == 30
 
@@ -97,10 +97,10 @@ Wanna_add_noise = "yes"
 # end
 
 MCF =[0.95 1.02 0.97]
-PACF = [0.5 -0.5 -1.2]
-No_of_PMUS_are_having_high_baise_error = 2
-# PMUs_CVT_error = sample(1:length(P),No_of_PMUS_are_having_high_baise_error,replace=false)
-PMUs_CVT_error = [5]
+PACF = [-1 -0.5 -1.2]
+No_of_PMUS_are_having_high_baise_error = 3
+PMUs_CVT_error = sample(1:length(P),No_of_PMUS_are_having_high_baise_error,replace=false)
+# PMUs_CVT_error = [5]
 Baise_error = [(1/MCF[o])*(cis(deg2rad(PACF[o]))) for o in 1:length(MCF)]
 
 
@@ -117,7 +117,8 @@ monte_simulation = 1000
 Spoofed_pmu_positions = 1:length(P)
 # Spf_angle = collect(-1:0.05:1)
 # Spf_angle = 0*ones(length(P))
-Spf_angle = collect(0:0.1:1)
+# Spf_angle = collect(0:0.1:1)
+Spf_angle = collect(0:1:10)
 Spf_var_length = length(Spf_angle)
 # Spf_angle = -1 # for fixed angle
 
@@ -175,14 +176,6 @@ for spf_var in 1:Spf_var_length
         Chi_with_adequate_weights_monte  = zeros(Float32, monte_simulation)
         Chi_without_weights_monte  = zeros(Float32, monte_simulation)
 
-        # LSE_RMSE_abs_monte = zeros(Float32, monte_simulation)
-        # LSE_RMSE_ang_monte = zeros(Float32, monte_simulation)
-        
-        # NLS_PA_monte = zeros(Float32, monte_simulation)
-        # NLS_Chi_monte = zeros(Float32, monte_simulation)
-        # NLS_RMSE_abs_monte = zeros(Float32, monte_simulation)
-        # NLS_RMSE_ang_monte = zeros(Float32, monte_simulation)
-
 
         
         for monte in 1:monte_simulation
@@ -224,7 +217,7 @@ for spf_var in 1:Spf_var_length
             Qm1, Rm1 = qr(H_scal_inad)
             Principal_angle1 = acosd((norm(inv(Rm1')*(H_scal_inad')*Z_scal_inad))/(norm(Z_scal_inad)))
             PA_with_inadequate_weights_monte[monte] = Principal_angle1
-            println("Principal angle with inadequate weights :", Principal_angle)
+            println("Principal angle with inadequate weights :", Principal_angle1)
 
             ########^^^^^^^^^^PA without weights ^^^^^^^^^^^^^^######
             Qm2, Rm2 = qr(H_meas)
