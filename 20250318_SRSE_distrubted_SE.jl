@@ -1,10 +1,10 @@
 using MAT,LinearAlgebra, Statistics, Plots, Clustering, Distributions, Dates, DataFrames, XLSX
 
-include("fun_20250115_SRSE_functions.jl")
+include("fun_20250318_SRSE_functions.jl")
 today_date = Dates.format(today(), "yyyymmdd")
 
 
-Test_system = 30 
+Test_system = 118
 
 if Test_system == 14
 
@@ -12,7 +12,8 @@ if Test_system == 14
     data = matread("data_20250104_IEEE_14bus.mat")
     P = [2, 4, 6 ,7 ,10 ,14]
     PA_threshold = 0.1080
-    no_of_spoofed_PMUs = [0 1 1 2 2 3 3 4 5 5 6] #for 30 bus system
+    no_of_spoofed_PMUs = [0 1 1 2 2 3 3 4 5 5 6] #for 14 bus system
+    
 
 elseif Test_system == 30
 
@@ -21,6 +22,7 @@ elseif Test_system == 30
     P = [2, 3, 6, 10, 11, 12, 15, 20, 23, 25, 27, 28, 29]
     PA_threshold = 0.125
     no_of_spoofed_PMUs = [0 1 3 4 5 7 8 9 10 12 13] #for 30 bus system
+    V_previous = matread("Previous_SE_30bus.mat")["V_previous"]
 
 elseif Test_system == 118
 
@@ -29,13 +31,42 @@ elseif Test_system == 118
     P = [1, 3, 4, 5, 6, 8, 9, 11, 12, 15, 17, 19, 21, 23, 25, 26, 28, 30, 34, 35, 37, 40, 43, 45, 46, 49, 52, 54, 56, 59, 62, 63, 65, 68, 70, 71, 75, 76, 77, 78, 80, 83, 85, 86, 89, 90, 92, 94, 96, 100, 105, 108, 110, 114];
     PA_threshold = 0.1028
     no_of_spoofed_PMUs = [0 5 11 16 22 27 32 38 43 49 53 54] #for 118 bus system
-    
+    V_previous = matread("Previous_SE_118bus.mat")["V_previous"]    
 else
     println("Type the test system number with in 14, 30 and 118")
 end
 
 println("Simulatino of IEEE $(Test_system) system")
 
+G1_PMUs = [1, 6, 12, 21, 28, 37, 46, 56, 65, 75, 80, 89, 96, 110]
+# G1_PMUs = [1, 6, 12, 21, 28, 37, 46]
+NO_PMUs_G1 = 14
+G1_Buses = [1, 6, 12, 21, 28, 37, 46, 56, 65, 75, 80, 89, 96, 110, 103, 93, 107, 72, 61, 118, 87, 88, 24, 22, 53, 2, 38, 99, 64]
+NO_buses_G1 = 29
+
+G2_PMUs = [3, 8, 15, 23, 30, 40, 49, 59, 68, 76, 83, 90, 100, 114]
+NO_PMUs_G2 = 14
+G2_Buses =  [3, 8, 15, 23, 30, 40, 49, 59, 68, 76, 83, 90, 100, 114, 60, 111, 33, 58, 101, 42, 116, 115, 81, 47, 109, 51, 55, 102, 7]
+NO_buses_G2 = 29
+
+G3_PMUs = [4, 9, 17, 25, 34, 43, 52, 62, 70, 77, 85, 92, 105]
+NO_PMUs_G3 = 13
+G3_Buses = [4, 9, 17, 25, 34, 43, 52, 62, 70, 77, 85, 92, 105, 39, 18, 84, 14, 104, 95, 20, 79, 113, 44, 66, 36, 50, 48, 29, 69]
+NO_buses_G3 = 29
+
+G4_PMUs = [5, 11, 19, 26, 35, 45, 54, 63, 71, 78, 86, 94, 108]
+NO_PMUs_G4 = 13
+G4_Buses = [5, 11, 19, 26, 35, 45, 54, 63, 71, 78, 86, 94, 108, 106, 10, 73, 31, 82, 67, 16, 13, 41, 98, 32, 97, 112, 74, 91, 117, 27, 57]
+NO_buses_G4 = 31
+
+Group_PMU = []
+Group_PMU = push!(Group_PMU,G1_PMUs,G2_PMUs, G3_PMUs, G4_PMUs)
+
+Group_Buses = []
+Group_Buses = push!(Group_Buses,G1_Buses,G2_Buses, G3_Buses, G4_Buses)
+
+
+P = Group_PMU[2]
 
 All_bus_measurements = data["z"]; H = data["H"]; Fb = Int.(data["Fb"]); Tb = Int.(data["Tb"]); R = data["R"]; X = data["X"]; b = data["b"]; Nb = Int.(data["Nb"]); Nl = Int.(data["Nl"]); V_true = data["V_true"]
 ####  Calculate impedance and admittance
@@ -44,7 +75,7 @@ Np = 1:length(P)
 
 #Extracting flow_indides for entire system based on PMU installation
 Flow_indices = Array{Vector{Int64}}(undef, length(P), 2)
-for pmu in 1:length(P)
+for pmu in Np
     From_end_indices = []
     To_end_indices = []
     From_end = findall(x -> x == P[pmu], Fb)
@@ -54,19 +85,34 @@ for pmu in 1:length(P)
     Flow_indices
 end
 
+
+######^^^^^^selecting the states accordin to reach of PMUs^^^^^#####
+idx_Fb = findall(x -> x in P, Fb)
+idx_Tb = findall(x -> x in P, Tb)
+
+# Extract corresponding elements
+Reach_bus = unique(vcat(Tb[idx_Fb], Fb[idx_Tb],P))
+
+# Reach_bus_indices = []
+# # Reach_bus_indices = [[Reach_bus_indices, Reach_bus_indices[h]*2 - 1, Reach_bus_indices[h]*2] for h in 1:length(Reach_bus)]
+# for h in Reach_bus
+#     global Reach_bus_indices = sort([Reach_bus_indices; h*2 - 1; h*2])
+# end
+
+# Reach_bus = sort(intersect(Reach_bus, G1_Buses))
+# Nb = length(Reach_bus)
 # Assigning the only PMU measurements to "Z" and rows related to PMU measurements of whole H to H_pmu
+# Z = All_bus_measurements[P]
+# H_pmu = H[P]
+# W_pmu = []
 Z = All_bus_measurements[P]
 H_pmu = H[P]
 W_pmu = []
 
 
-# # Standard Deviations
-# StandardDeviation_V = 0.001 #for voltage measurements
-# StandardDeviation_I = 0.002 #for current measurements
-
 # Standard Deviations
-StandardDeviation_V = 0.005 #for voltage measurements
-StandardDeviation_I = 0.01 #for current measurements
+StandardDeviation_V = 0.001 #for voltage measurements
+StandardDeviation_I = 0.002 #for current measurements
 
 
 # Initialize variance matrix
@@ -80,10 +126,12 @@ end
 
 
 H_meas = vcat(H_pmu...)
+H_meas = H_meas[:,Reach_bus]
 W_vect = vcat(W_pmu...)
 W = Diagonal(W_vect)
 W_inv = W^(-1/2)
 H_scal = W_inv*H_meas
+# H_scal = H_scal[:,Reach_bus]
 Wanna_add_noise = "yes"
 
 
@@ -139,11 +187,11 @@ for nsd in 0:no_of_cases-1
     ns = nsd+1;
     if Multi_percent == "Mulitple_GSAs"
         ####### 5 PMUs are spoofed case study with one non-spoofing case
-        Position_Spoofed_PMUs = sample(1:length(P),nsd,replace=false) #selecting PMU positions for spoofing and no pmu should not be repitative
+        Position_Spoofed_PMUs = sample(Np,nsd,replace=false) #selecting PMU positions for spoofing and no pmu should not be repitative
         Spoofing_angles = rand(Spf_angle,nsd)
     else
         ####### Percetange spoofed PMUs case study with one non-spoofing case
-        Position_Spoofed_PMUs = sample(1:length(P),no_of_spoofed_PMUs[ns],replace=false)
+        Position_Spoofed_PMUs = sample(Np,no_of_spoofed_PMUs[ns],replace=false)
         Spoofing_angles = rand(Spf_angle,no_of_spoofed_PMUs[ns])
     end
 
@@ -195,12 +243,12 @@ for nsd in 0:no_of_cases-1
         Residula_vector = Z_meas - (H_meas*V_estimation)
 
         ###### Chi squre with spoofing ############
-        W_inv_sd = inv(W)
-        LSE_Chi_monte[monte] = abs.(((Residula_vector')*W_inv_sd*Residula_vector)[1,1])
+        # W_inv_sd = inv(W)
+        # LSE_Chi_monte[monte] = abs.(((Residula_vector')*W_inv_sd*Residula_vector)[1,1])
 
         #######^^^^^^^RMSE with Spoofing^^^^^^########
-        LSE_RMSE_abs_monte[monte] = norm(abs.(Z_meas) - abs.(H_meas*V_estimation))/sqrt(m)
-        LSE_RMSE_ang_monte[monte] = norm(angle.(Z_meas) - angle.(H_meas*V_estimation))/sqrt(m)
+        # LSE_RMSE_abs_monte[monte] = norm(abs.(Z_meas) - abs.(H_meas*V_estimation))/sqrt(m)
+        # LSE_RMSE_ang_monte[monte] = norm(angle.(Z_meas) - angle.(H_meas*V_estimation))/sqrt(m)
 
     
         tolerance = 1e-3
@@ -216,7 +264,7 @@ for nsd in 0:no_of_cases-1
             #     break
             # else
                 NLS_matrix = NLS_measurement_vector(Z_spf)
-                V_estimation_NLS = NonLinear_State_Estimation(tolerance,NLS_matrix,P, V_k, Y,b,Fb,Tb,Nl,Nb,G,B1,B2,Flow_indices)
+                V_estimation_NLS = NonLinear_State_Estimation(tolerance,NLS_matrix, P, V_k, Y,b,Fb,Tb,Nl,Nb,G,B1,B2,Flow_indices)
                 V_estimate_NLS_PMUs = V_estimation_NLS[P]
                 Angle_diff = rad2deg.(angle.(V_pmu)) - rad2deg.(angle.(V_estimate_NLS_PMUs))
 
@@ -256,6 +304,7 @@ for nsd in 0:no_of_cases-1
     
                 ####### Correction algorithm
                 Correction_V_estimation_NLS = V_estimation_NLS*exp(deg2rad(corrction_delta)*im)
+                Correction_V_estimation_NLS_reach = Correction_V_estimation_NLS[Reach_bus] 
                 Position_Idenfied_spoofed_PMUs = findall(x -> x in Idenfied_spoofed_PMUs, P)
     
                 Z_correction = Correction_measurment(Position_Idenfied_spoofed_PMUs,Estimated_spoofed_angles,Z_spf)
@@ -271,7 +320,7 @@ for nsd in 0:no_of_cases-1
 
                 if Principal_angle_corre <= PA_threshold || pa_te == 10
 
-                    Residula_vector_NLS = Z_correction_meas - (H_meas*Correction_V_estimation_NLS)
+                    Residula_vector_NLS = Z_correction_meas - (H_meas*Correction_V_estimation_NLS_reach)
                     Chi_sq_NLS = 0;
                     for (res,var) in zip(Residula_vector_NLS,W_vect)
                         Chi_up_sq_NLS = (abs.(res))^2/var;
@@ -280,8 +329,8 @@ for nsd in 0:no_of_cases-1
     
                     NLS_Chi_monte[monte] = Chi_sq_NLS
                     NLS_PA_monte[monte] = Principal_angle_corre
-                    NLS_RMSE_abs_monte[monte] = norm(abs.(Z_correction_meas) - abs.(H_meas*Correction_V_estimation_NLS))/sqrt(m)
-                    NLS_RMSE_ang_monte[monte] = norm(angle.(Z_correction_meas) - angle.(H_meas*Correction_V_estimation_NLS))/sqrt(m)
+                    NLS_RMSE_abs_monte[monte] = norm(abs.(Z_correction_meas) - abs.(H_meas*Correction_V_estimation_NLS_reach))/sqrt(m)
+                    NLS_RMSE_ang_monte[monte] = norm(angle.(Z_correction_meas) - angle.(H_meas*Correction_V_estimation_NLS_reach))/sqrt(m)
                     break
                 else
                     Principal_angle = Principal_angle_corre
