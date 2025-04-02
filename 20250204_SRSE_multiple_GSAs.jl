@@ -4,7 +4,6 @@ include("fun_20250115_SRSE_functions.jl")
 today_date = Dates.format(today(), "yyyymmdd")
 
 
-Test_system = 30 
 
 if Test_system == 14
 
