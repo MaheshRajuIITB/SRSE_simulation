@@ -4,7 +4,7 @@ include("fun_20250115_SRSE_functions.jl")
 today_date = Dates.format(today(), "yyyymmdd")
 
 
-Test_system = 30
+Test_system = 118
 
 if Test_system == 14
 
@@ -58,8 +58,16 @@ H_pmu = H[P]
 W_pmu = []
 
 # Standard deviations
-StandardDeviation_V = 0.001
-StandardDeviation_I = 0.002
+# StandardDeviation_V = 0.001
+# StandardDeviation_I = 0.002
+
+#Standard deviation
+# StandardDeviation_V = 0.005
+# StandardDeviation_I = 0.01
+
+#Standard deviation
+StandardDeviation_V = 0.01
+StandardDeviation_I = 0.02
 
 # Initialize variance matrix
 StandardDeviation_matrix = []
@@ -76,25 +84,18 @@ W_vect = vcat(W_pmu...)
 W = Diagonal(W_vect)
 Wanna_add_noise = "yes"
 
-# W_inad = copy(W_pmu)
 
 no_of_cases = 1 # for multiple cases
 monte_simulation = 1000
 
-# Spoofed_pmu_positions = [3 10 15 19 24 28 31 35 45 50] #only for IEEE 118 bus system
 
 Spoofed_pmu_positions = 1:length(P)
-# Spf_angle = collect(-1:0.05:1)
-# Spf_angle = 0*ones(length(P))
-Spf_angle = collect(0:0.1:1)
+Spf_angle = collect(0:0.1:10)
 Spf_var_length = length(Spf_angle)
-# Spf_angle = -1 # for fixed angle
 
 
-
-
-# weig = collect(0.1:0.1:2)
-weig = collect(1:0.1:2)
+weig = collect(0.1:0.1:2)
+# weig = collect(1:0.1:2)
 # weig = collect(0.1:0.1:0.9)
 
 
@@ -107,6 +108,11 @@ PA_with_correct_weights_mean = zeros(Float32, no_of_cases,Spf_var_length)
 PA_with_inadequate_weights_mean = zeros(Float32, no_of_cases,Spf_var_length)
 PA_without_weights_mean = zeros(Float32, no_of_cases, Spf_var_length)
 
+
+Norm_with_correct_weights_mean = zeros(Float32, no_of_cases,Spf_var_length)
+Norm_with_inadequate_weights_mean = zeros(Float32, no_of_cases,Spf_var_length)
+Norm_without_weights_mean = zeros(Float32, no_of_cases, Spf_var_length)
+
 Chi_with_correct_weights_mean = zeros(Float32, no_of_cases, Spf_var_length)
 Chi_with_inadequate_weights_mean = zeros(Float32, no_of_cases, Spf_var_length)
 Chi_without_weights_mean = zeros(Float32, no_of_cases, Spf_var_length)
@@ -115,6 +121,10 @@ Chi_without_weights_mean = zeros(Float32, no_of_cases, Spf_var_length)
 PA_with_correct_weights = Array{Vector{Float64}}(undef,no_of_cases,Spf_var_length)
 PA_with_inadequate_weights = Array{Vector{Float64}}(undef,no_of_cases,Spf_var_length)
 PA_without_weights =Array{Vector{Float64}}(undef,no_of_cases,Spf_var_length)
+
+Norm_with_correct_weights = Array{Vector{Float64}}(undef,no_of_cases,Spf_var_length)
+Norm_with_inadequate_weights = Array{Vector{Float64}}(undef,no_of_cases,Spf_var_length)
+Norm_without_weights =Array{Vector{Float64}}(undef,no_of_cases,Spf_var_length)
 
 Chi_with_correct_weights = Array{Vector{Float64}}(undef,no_of_cases,Spf_var_length)
 Chi_with_inadequate_weights = Array{Vector{Float64}}(undef,no_of_cases,Spf_var_length)
@@ -126,7 +136,6 @@ for spf_var in 1:Spf_var_length
     for nsd in 1:1
 
         ns = 1;
-        # Position_Spoofed_PMUs = []
         Position_Spoofed_PMUs = sample(1:length(P),nsd,replace=false)
         Spoofed_PMUs_for_case[ns,spf_var] = P[Position_Spoofed_PMUs]
         println("Spoofed PMU:", P[Position_Spoofed_PMUs])  
@@ -139,6 +148,10 @@ for spf_var in 1:Spf_var_length
         PA_with_correct_weights_monte = zeros(Float32, monte_simulation)
         PA_with_inadequate_weights_monte = zeros(Float32, monte_simulation)
         PA_without_weights_monte = zeros(Float32, monte_simulation)
+
+        Norm_with_correct_weights_monte = zeros(Float32, monte_simulation)
+        Norm_with_inadequate_weights_monte = zeros(Float32, monte_simulation)
+        Norm_without_weights_monte = zeros(Float32, monte_simulation)
 
         Chi_with_correct_weights_monte  = zeros(Float32, monte_simulation)
         Chi_with_adequate_weights_monte  = zeros(Float32, monte_simulation)
@@ -183,44 +196,48 @@ for spf_var in 1:Spf_var_length
             H_scal_inad = W_inv_inad*H_meas
             Z_scal_inad = W_inv_inad*Z_meas
 
+            Norm_with_correct_weights_monte[monte] = norm(Z_scal)
+            Norm_with_inadequate_weights_monte[monte] = norm(Z_scal_inad)
+            Norm_without_weights_monte[monte] = norm(Z_meas)
+
         
             ########^^^^^^^^^^PA test with correct weights ^^^^^^^^^^^######
             Qm, Rm = qr(H_scal)
             Principal_angle = acosd((norm(inv(Rm')*(H_scal')*Z_scal))/(norm(Z_scal)))
             PA_with_correct_weights_monte[monte] = Principal_angle
-            println("Principal angle with correct weights :", Principal_angle)
+            # println("Principal angle with correct weights :", Principal_angle)
 
             ########^^^^^^^^^^PA test with inadequate weights ^^^^^^^^^^^######
             Qm1, Rm1 = qr(H_scal_inad)
             Principal_angle1 = acosd((norm(inv(Rm1')*(H_scal_inad')*Z_scal_inad))/(norm(Z_scal_inad)))
             PA_with_inadequate_weights_monte[monte] = Principal_angle1
-            println("Principal angle with inadequate weights :", Principal_angle)
+            # println("Principal angle with inadequate weights :", Principal_angle)
 
             ########^^^^^^^^^^PA without weights ^^^^^^^^^^^^^^######
             Qm2, Rm2 = qr(H_meas)
             Principal_angle2 = acosd((norm(inv(Rm2')*(H_meas')*Z_meas))/(norm(Z_meas)))
             PA_without_weights_monte[monte] = Principal_angle2
-            println("Principal angle without weights:", Principal_angle2)
+            # println("Principal angle without weights:", Principal_angle2)
             
 
             ##### Linear State Estimation with correct weights
-            println("The weight matrix : \n", W_vect)
+            # println("The weight matrix : \n", W_vect)
             V_estimation = H_scal \ Z_scal
             Residula_vector = Z_meas - (H_meas*V_estimation)
 
             ########^^^^^^^^^^Chi squre with correct weights^^^^^^^^^^############## 
             Chi_with_correct_weights_monte[monte] = abs.(((Residula_vector')*W_inv_sd*Residula_vector)[1,1])
-            println("Chi square with correct weights : ", Chi_with_correct_weights_monte[monte])
+            # println("Chi square with correct weights : ", Chi_with_correct_weights_monte[monte])
 
 
             ##### Linear State Estimation with inadequate weights
-            println("The inadequate weight matrix :\n", W_inad_vect)
+            # println("The inadequate weight matrix :\n", W_inad_vect)
             V_estimation_inad = H_scal_inad \ Z_scal_inad
             Residula_vector_inad = Z_meas - (H_meas*V_estimation_inad)
 
             ########^^^^^^^^^^Chi squre with inadequate weights^^^^^^^^^^^##########
             Chi_with_adequate_weights_monte[monte] = abs.(((Residula_vector_inad')*W_inv_sd_inad*Residula_vector_inad)[1,1])
-            println("Chi square with inadequate weights : ", abs.(((Residula_vector_inad')*W_inv_sd_inad*Residula_vector_inad)[1,1]))
+            # println("Chi square with inadequate weights : ", abs.(((Residula_vector_inad')*W_inv_sd_inad*Residula_vector_inad)[1,1]))
 
             # Linear State Estimation with inadequate weights
             V_estimation_meas = H_meas \ Z_meas
@@ -228,13 +245,8 @@ for spf_var in 1:Spf_var_length
 
             ########^^^^^^^^^^Chi squre without weights^^^^^^^^^^^^^######
             Chi_without_weights_monte[monte] = abs.(((Residula_vector_meas')*Residula_vector_meas)[1,1])
-            println("Chi square without weights : ", Chi_without_weights_monte[monte])
+            # println("Chi square without weights : ", Chi_without_weights_monte[monte])
 
-
-
-
-        
-            
         
             
         end
@@ -244,6 +256,10 @@ for spf_var in 1:Spf_var_length
         PA_with_inadequate_weights_mean[ns,spf_var] = mean(PA_with_inadequate_weights_monte)
         PA_without_weights_mean[ns,spf_var] = mean(PA_without_weights_monte)
 
+        Norm_with_correct_weights_mean[ns,spf_var] = mean(Norm_with_correct_weights_monte)
+        Norm_with_inadequate_weights_mean[ns,spf_var] = mean(Norm_with_inadequate_weights_monte)
+        Norm_without_weights_mean[ns,spf_var] = mean(Norm_without_weights_monte)
+
         Chi_with_correct_weights_mean[ns,spf_var]  = mean(Chi_with_correct_weights_monte)
         Chi_with_inadequate_weights_mean[ns,spf_var]  = mean(Chi_with_adequate_weights_monte)
         Chi_without_weights_mean[ns,spf_var]  = mean(Chi_without_weights_monte)
@@ -252,6 +268,10 @@ for spf_var in 1:Spf_var_length
         PA_with_correct_weights[ns,spf_var] = PA_with_correct_weights_monte
         PA_with_inadequate_weights[ns,spf_var] = PA_with_inadequate_weights_monte
         PA_without_weights[ns,spf_var] =  PA_without_weights_monte
+
+        Norm_with_correct_weights[ns,spf_var] = Norm_with_correct_weights_monte
+        Norm_with_inadequate_weights[ns,spf_var] = Norm_with_inadequate_weights_monte
+        Norm_without_weights[ns,spf_var] =  Norm_without_weights_monte
 
         Chi_with_correct_weights[ns,spf_var] = Chi_with_correct_weights_monte
         Chi_with_inadequate_weights[ns,spf_var] = Chi_with_adequate_weights_monte
@@ -269,12 +289,17 @@ end
 
 
 dict_data = Dict(
+    # "Spf_angle" => Spf_angle,
     "Spoofed_PMUs_for_case" => Spoofed_PMUs_for_case,
     "Spoofing_angles_for_case" => Spoofing_angles_for_case,
 
     "PA_with_correct_weights_mean" => PA_with_correct_weights_mean,
     "PA_with_inadequate_weights_mean" => PA_with_inadequate_weights_mean,
     "PA_without_weights_mean" => PA_without_weights_mean,
+
+    "Norm_with_correct_weights_mean" => Norm_with_correct_weights_mean,
+    "Norm_with_inadequate_weights_mean" => Norm_with_inadequate_weights_mean,
+    "Norm_without_weights_mean" => Norm_without_weights_mean,
 
     "Chi_with_correct_weights_mean" => Chi_with_correct_weights_mean,
     "Chi_with_inadequate_weights_mean" => Chi_with_inadequate_weights_mean,
@@ -284,9 +309,13 @@ dict_data = Dict(
     "PA_with_inadequate_weights" => PA_with_inadequate_weights,
     "PA_without_weights" =>  PA_without_weights,
 
+    "Norm_with_correct_weights" => Norm_with_correct_weights,
+    "Norm_with_inadequate_weights" => Norm_with_inadequate_weights,
+    "Norm_without_weights" =>  Norm_without_weights,
+
     "Chi_with_correct_weights" => Chi_with_correct_weights,
     "Chi_with_inadequate_weights" => Chi_with_inadequate_weights,
     "Chi_without_weights" => Chi_without_weights
 
     )
-matwrite("res_$(today_date)_PA_Chi_inadequate_weights_ang_vary_IEEE_$(Test_system).mat", dict_data)
+matwrite("res_PA_Chi_diff_weights_ang_vary_IEEE_$(Test_system).mat", dict_data)
