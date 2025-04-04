@@ -11,9 +11,11 @@ Ang_variation = -1:0.05:1;
 % RMSE_abs_monte = 0.001128;
 % RMSE_ang_monte = 0.00837;
 
-% %% IEEE-30 bus system
-% load("res_20250109_30_Multiple_GSAs.mat")
-load("res_20250210_ Multiple_GSAs_IEEE_30.mat")
+
+%% IEEE-30 bus system
+
+load("res_20250109_30_Multiple_GSAs.mat")
+% load("res_20250210_ Multiple_GSAs_IEEE_30.mat")
 % load("res_20250113_30_Percent_Multiple_GSAs.mat")
 PA_threshold = 0.1249
 
@@ -24,6 +26,7 @@ PA_threshold = 0.1249
 % % Chi_thre = 83.5134
 % 
 % RMSE_ang_monte = 0.0908;
+
 
 %% IEEE-118 bus system
 % load("res_20250110_118_Multiple_GSAs.mat")
@@ -42,7 +45,6 @@ PA_threshold = 0.1249
 
 
 %% BOX Plotting
-
 
 PMUs_spoofed_matrix_LSE = zeros(1000,length(PA_LSE_monte));
 PMUs_spoofed_matrix_NLS = zeros(1000,length(PA_NLS_monte));

@@ -380,6 +380,8 @@ set(findobj(gca, 'Tag', 'Upper Adjacent Value'), 'LineWidth', 2); % Max line
 set(findobj(gca, 'Tag', 'Lower Adjacent Value'), 'LineWidth', 2); % Min line
 
 
+return
+
 %% Compartive box plots of chi square and PA
 close all
 figure('Name','Comparision of Chi and PA')
