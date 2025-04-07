@@ -14,10 +14,10 @@ Ang_variation = -1:0.05:1;
 
 %% IEEE-30 bus system
 
-load("res_20250109_30_Multiple_GSAs.mat")
+% load("res_20250109_30_Multiple_GSAs.mat")
 % load("res_20250210_ Multiple_GSAs_IEEE_30.mat")
 % load("res_20250113_30_Percent_Multiple_GSAs.mat")
-PA_threshold = 0.1249
+% PA_threshold = 0.1249
 
 % RMSE_abs_monte = 0.001164;
 % PA_threshold_monte = 0.119319;
@@ -29,10 +29,10 @@ PA_threshold = 0.1249
 
 
 %% IEEE-118 bus system
-% load("res_20250110_118_Multiple_GSAs.mat")
+load("res_20250110_118_Multiple_GSAs.mat")
 % load("res_20250113_118_Percent_Multiple_GSAs.mat")
 % load("res_20250210_ Multiple_GSAs_IEEE_118.mat")
-% PA_threshold = 0.1028;
+PA_threshold = 0.1028;
 
 % RMSE_abs_monte = 0.00131;
 % PA_threshold_monte = 0.10066;
@@ -62,7 +62,7 @@ t = tiledlayout(1,2,'TileSpacing','loose');
 HA(1) = nexttile
 boxplot(PMUs_spoofed_matrix_LSE)
 yline(PA_threshold,'g', 'LineWidth', 5,'DisplayName','PA threshold')
-title('PA with spoofing')
+title('PA with GSA')
 % xticklabels({'2' '3', '4', '5'});
 legend("show",'Location','northwest')
 grid on;
@@ -82,8 +82,8 @@ set(findobj(gca, 'Tag', 'Lower Adjacent Value'), 'LineWidth', 2); % Min line
 HA(2) = nexttile
 boxplot(PMUs_spoofed_matrix_NLS)
 yline(PA_threshold,'g', 'LineWidth', 5,'DisplayName','PA threshold')
-% ylim([0.08 0.12])
-title('PA after correction')
+ylim([0.08 0.12])
+title('PA after mitigation of GSA')
 % xticklabels({'2' '3', '4', '5'});
 grid on;
 legend("show",'Location','northwest')

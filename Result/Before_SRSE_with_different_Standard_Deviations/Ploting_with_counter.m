@@ -101,7 +101,7 @@ HA(2) = nexttile;
 h1 = boxplot(PA_without_weights_nspf_vector_SD1*resizeing_non_weights_to_weights_factor_SD1, 'positions', spf_ang_variation - 0.1,'Width', 0.08,'Colors', 'b');
 set(h1, {'MarkerEdgeColor'}, {'b'});
 hold on
-h2 = boxplot(PA_without*resizeing_non_weights_to_weights_factor_SD1, 'positions', spf_ang_variation + 0.1, 'Width', 0.08, 'Colors', 'm');
+h2 = boxplot(PA_without, 'positions', spf_ang_variation + 0.1, 'Width', 0.08, 'Colors', 'm');
 % h2 = boxplot(PA_without_weights_nspf_vector_SD1*resizeing_non_weights_to_weights_factor_SD1, 'positions', spf_ang_variation, 'Width', 0.08, 'Colors', 'm');
 % h2 = boxplot(PA_without_weights_nspf_vector_SD1, 'positions', spf_ang_variation, 'Width', 0.08, 'Colors', 'm');
 set(h2, {'MarkerEdgeColor'}, {'m'});
