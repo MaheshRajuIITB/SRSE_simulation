@@ -86,11 +86,11 @@ H_scal = W_inv*H_meas
 Wanna_add_noise = "yes"
 
 
-monte_simulation = 1
+monte_simulation = 1000
 
 
 Position_Spoofed_PMUs = [5]
-Spoofing_angles = [0.5]
+Spoofing_angles = [0.4]
 
 
 
@@ -142,15 +142,27 @@ for monte in 1:monte_simulation
     # LSE_RMSE_ang_monte[monte] = norm(angle.(Z_meas) - angle.(H_meas*V_estimation))/sqrt(m)
 
 
-    tolerance = 1e-3
-    epsi = 0.1
-    # V_k = copy(V_previous)
-    V_k = copy(V_true)
-    dig = 3
-
-    NLS_Chi, NLS_PA, Z_correction = SRSE_algorithm(PA_threshold, Z_spf, V_pmu, tolerance, epsi, dig, P, V_k, Y, b, Fb, Tb, Nl, Nb, G, B1, B2, Flow_indices, W_inv, W_inv_sd, H_meas, H_scal)
+    if Principal_angle > PA_threshold
+        tolerance = 1e-3
+        epsi = 0.1
+        # V_k = copy(V_previous)
+        V_k = copy(V_true)
+        dig = 3
+        NLS_Chi, NLS_PA, Z_correction = SRSE_algorithm(PA_threshold, Z_spf, V_pmu, tolerance, epsi, dig, P, V_k, Y, b, Fb, Tb, Nl, Nb, G, B1, B2, Flow_indices, W_inv, W_inv_sd, H_meas, H_scal)
+        NLS_PA_monte[monte] = NLS_PA
+    else
+        NLS_PA_monte[monte] = Principal_angle
+    end
 
 end
+
+
+dict_data = Dict(
+    "LSE_PA" => LSE_PA_monte,
+    "NLS_PA" => NLS_PA_monte,
+    )
+
+matwrite("res_$(today_date)_Single_GSA_IEEE_$(Test_system).mat", dict_data)
 
 
 
