@@ -1,6 +1,7 @@
-function SRSE_algorithm(PA_threshold::Any, Z_spf::Any, V_pmu::Any, tolerance::Any, epsi::Any, dig::Any, P::Any, V_k::Any, Y::Any, b::Any, Fb::Any, Tb::Any, Nl::Any, Nb::Any, G::Any, B1::Any, B2::Any, Flow_indices::Any, W_inv::Any, W_inv_sd::Any, H_meas::Any, H_scal::Any)
+function SRSE_algorithm(PA_threshold::Any, Z_spf::Any, V_pmu::Any, tolerance::Any, epsi::Any, dig::Any, P::Any, V_k::Any, Y::Any, b::Any, Fb::Any, Tb::Any, Nl::Any, Nb::Any, G::Any, B1::Any, B2::Any, Flow_indices::Any, W_inv::Any, W_inv_sd::Any, H_meas::Any, H_scal::Any,m::Any)
 NLS_Chi = 0
 Principal_angle = 0 
+NLS_RMSE_abs = 0
 Z_correction = copy(Z_spf)
     for pa_te in 1:10
         NLS_matrix = NLS_measurement_vector(Z_spf)
@@ -57,7 +58,7 @@ Z_correction = copy(Z_spf)
             NLS_Chi = abs.(((Residula_vector_NLS')*W_inv_sd*Residula_vector_NLS)[1,1])
             Principal_angle = Principal_angle_corre
 
-            # NLS_RMSE_abs_monte[monte] = norm(abs.(Z_correction_meas) - abs.(H_meas*Correction_V_estimation_NLS))/sqrt(m)
+            NLS_RMSE_abs = norm(abs.(Z_correction_meas) - abs.(H_meas*Correction_V_estimation_NLS))/sqrt(m)
             # NLS_RMSE_ang_monte[monte] = norm(angle.(Z_correction_meas) - angle.(H_meas*Correction_V_estimation_NLS))/sqrt(m)
             break
         else
@@ -70,5 +71,5 @@ Z_correction = copy(Z_spf)
 
     end
 
-    return  NLS_Chi, Principal_angle, Z_correction
+    return  NLS_Chi, Principal_angle, NLS_RMSE_abs, Z_correction
 end
