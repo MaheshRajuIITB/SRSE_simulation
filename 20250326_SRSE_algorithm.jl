@@ -21,7 +21,7 @@ elseif Test_system == 30
     ##### Data of IEEE - 30bus system #####
     data = matread("data_20250104_IEEE_30bus.mat")
     P = [2, 3, 6, 10, 11, 12, 15, 20, 23, 25, 27, 28, 29]
-    PA_threshold = 0.125
+    PA_threshold = 0.1249
     no_of_spoofed_PMUs = [0 1 3 4 5 7 8 9 10 12 13] #for 30 bus system
 
 elseif Test_system == 118
@@ -90,7 +90,7 @@ monte_simulation = 1000
 
 
 Position_Spoofed_PMUs = [5]
-Spoofing_angles = [0.4]
+Spoofing_angles = [1.5]
 
 
 

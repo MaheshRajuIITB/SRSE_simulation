@@ -4,6 +4,7 @@ include("fun_20250115_SRSE_functions.jl")
 today_date = Dates.format(today(), "yyyymmdd")
 
 
+Test_system = 118
 
 if Test_system == 14
 
@@ -18,7 +19,8 @@ elseif Test_system == 30
     ##### Data of IEEE - 30bus system #####
     data = matread("data_20250104_IEEE_30bus.mat")
     P = [2, 3, 6, 10, 11, 12, 15, 20, 23, 25, 27, 28, 29]
-    PA_threshold = 0.125
+    # PA_threshold = 0.125
+    PA_threshold = 0.1443
     no_of_spoofed_PMUs = [0 1 3 4 5 7 8 9 10 12 13] #for 30 bus system
 
 elseif Test_system == 118
@@ -26,7 +28,8 @@ elseif Test_system == 118
     ##### Data of IEEE - 118bus system #####
     data = matread("data_20250104_IEEE_118bus.mat")
     P = [1, 3, 4, 5, 6, 8, 9, 11, 12, 15, 17, 19, 21, 23, 25, 26, 28, 30, 34, 35, 37, 40, 43, 45, 46, 49, 52, 54, 56, 59, 62, 63, 65, 68, 70, 71, 75, 76, 77, 78, 80, 83, 85, 86, 89, 90, 92, 94, 96, 100, 105, 108, 110, 114];
-    PA_threshold = 0.1028
+    # PA_threshold = 0.1028
+    PA_threshold = 0.1107 
     no_of_spoofed_PMUs = [0 5 11 16 22 27 32 38 43 49 53 54] #for 118 bus system
     
 else
@@ -60,12 +63,12 @@ W_pmu = []
 
 
 # # Standard Deviations
-# StandardDeviation_V = 0.001 #for voltage measurements
-# StandardDeviation_I = 0.002 #for current measurements
+StandardDeviation_V = 0.001 #for voltage measurements
+StandardDeviation_I = 0.002 #for current measurements
 
 # Standard Deviations
-StandardDeviation_V = 0.005 #for voltage measurements
-StandardDeviation_I = 0.01 #for current measurements
+# StandardDeviation_V = 0.005 #for voltage measurements
+# StandardDeviation_I = 0.01 #for current measurements
 
 
 # Initialize variance matrix
@@ -89,8 +92,8 @@ Wanna_add_noise = "yes"
 monte_simulation = 1000
 
 
-Multi_percent = "Mulitple_GSAs"
-# Multi_percent = "Percetange_Mulitple_GSAs"
+# Multi_percent = "Mulitple_GSAs"
+Multi_percent = "Percetange_Mulitple_GSAs"
 
 if Multi_percent == "Mulitple_GSAs"
     no_of_cases = 6 # for multiple cases
@@ -99,7 +102,7 @@ else
 end
 
 # Spoofing_angles = [2.5, -1.5, -2, 2.5]
-Spf_angle = 0.7*ones(length(P)) # fixed spoofing angle i.e., 0.7
+Spf_angle = 0.8*ones(length(P)) # fixed spoofing angle i.e., 0.7
 # Spf_angle = collect(-1:0.05:1) # spoofing angle varies between -1 t: 0.05 : 1
 
 Spoofed_PMUs_for_case = Array{Vector{Float64}}(undef,no_of_cases,1) #what are the PMUs are spoofed in different cases
@@ -365,35 +368,35 @@ dict_data = Dict(
 matwrite("res_$(today_date)_$(Multi_percent)_IEEE_$(Test_system).mat", dict_data)
 
 
-df = DataFrame(
-    "LSE_PA_mean" => LSE_PA_mean,
-    "LSE_Chi_mean" => LSE_Chi_mean,
-    "LSE_RMSE_abs_mean" => LSE_RMSE_abs_mean,
-    "LSE_RMSE_ang_mean" => LSE_RMSE_ang_mean,
-    "NLS_PA_mean" => NLS_PA_mean,
-    "NLS_Chi_mean" => NLS_Chi_mean,
-    "NLS_RMSE_abs_mean" => NLS_RMSE_abs_mean,
-    "NLS_RMSE_ang_mean" => NLS_RMSE_ang_mean,
-)
+# df = DataFrame(
+#     "LSE_PA_mean" => LSE_PA_mean,
+#     "LSE_Chi_mean" => LSE_Chi_mean,
+#     "LSE_RMSE_abs_mean" => LSE_RMSE_abs_mean,
+#     "LSE_RMSE_ang_mean" => LSE_RMSE_ang_mean,
+#     "NLS_PA_mean" => NLS_PA_mean,
+#     "NLS_Chi_mean" => NLS_Chi_mean,
+#     "NLS_RMSE_abs_mean" => NLS_RMSE_abs_mean,
+#     "NLS_RMSE_ang_mean" => NLS_RMSE_ang_mean,
+# )
 
 
-XLSX.openxlsx("res_$(today_date)_$(Multi_percent)_IEEE_$(Test_system).xlsx", mode="w") do xf
-    sheet = xf[1]
-    XLSX.rename!(sheet, "ieee$(Test_system)")
+# XLSX.openxlsx("res_$(today_date)_$(Multi_percent)_IEEE_$(Test_system).xlsx", mode="w") do xf
+#     sheet = xf[1]
+#     XLSX.rename!(sheet, "ieee$(Test_system)")
     
-    # Write headers
-    headers = names(df)
-    for (col, header) in enumerate(headers)
-        sheet[XLSX.encode_column_number(col) * "1"] = header
-    end
+#     # Write headers
+#     headers = names(df)
+#     for (col, header) in enumerate(headers)
+#         sheet[XLSX.encode_column_number(col) * "1"] = header
+#     end
     
-    # Write data
-    for (row, data_row) in enumerate(eachrow(df))
-        for (col, value) in enumerate(data_row)
-            sheet[XLSX.encode_column_number(col) * string(row + 1)] = value
-        end
-    end
-end
+#     # Write data
+#     for (row, data_row) in enumerate(eachrow(df))
+#         for (col, value) in enumerate(data_row)
+#             sheet[XLSX.encode_column_number(col) * string(row + 1)] = value
+#         end
+#     end
+# end
 
 
 
