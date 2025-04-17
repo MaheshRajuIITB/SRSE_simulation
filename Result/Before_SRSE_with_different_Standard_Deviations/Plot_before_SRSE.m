@@ -6,7 +6,7 @@ system = 30
 % input('Enter the test system (30 or 118) :')
 % Spoofing_angle = 0.4; %can choose from 0:0.1:10
 % index = find(Spoofing_angle == 0:0.1:10);
-index = 5;
+index = 26;
 % index = 9; %for 0.8 is the spoofing angle
 % index = 16; %for 1.5 is the spoofing angle
 
