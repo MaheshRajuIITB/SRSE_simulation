@@ -18,11 +18,13 @@ elseif Test_system == 30
     data = matread("data_20250104_IEEE_30bus.mat")
     P = [2, 3, 6, 10, 11, 12, 15, 20, 23, 25, 27, 28, 29]
     PA_threshold = 0.1443
+    Spoofed_pmu_positions = 1:length(P)
 elseif Test_system == 118
     ##### Data of IEEE - 118bus system #####
     data = matread("data_20250104_IEEE_118bus.mat")
     P = [1, 3, 4, 5, 6, 8, 9, 11, 12, 15, 17, 19, 21, 23, 25, 26, 28, 30, 34, 35, 37, 40, 43, 45, 46, 49, 52, 54, 56, 59, 62, 63, 65, 68, 70, 71, 75, 76, 77, 78, 80, 83, 85, 86, 89, 90, 92, 94, 96, 100, 105, 108, 110, 114];
     PA_threshold = 0.1107   
+    Spoofed_pmu_positions = [3 7 10 11 15 19 24 26 28 31 35 45 50]
 else
     println("Type the test system number with in 14, 30 and 118")
 end
@@ -82,9 +84,6 @@ Wanna_add_noise = "yes"
 monte_simulation = 1000
 
 
-
-Spoofed_pmu_positions = 1:length(P)
-# Spoofed_pmu_positions = [3 10 15 19 24 28 31 35 45 50]
 Spf_angle = collect(-1:0.1:1)
 
 
@@ -146,7 +145,8 @@ for Spf_PMU in 1:length(Spoofed_pmu_positions)
             # LSE_Chi_monte[monte,] = abs.(((Residula_vector')*W_inv_sd*Residula_vector)[1,1])
         
             #######^^^^^^^RMSE with Spoofing^^^^^^########
-            LSE_RMSE_abs_monte = [LSE_RMSE_abs_monte; norm(abs.(Z_meas) - abs.(H_meas*V_estimation))/sqrt(m)]
+            LSE_RMSE_abs = norm(abs.(Z_meas) - abs.(H_meas*V_estimation))/sqrt(m)
+            LSE_RMSE_abs_monte = [LSE_RMSE_abs_monte; LSE_RMSE_abs]
         
         
             if Principal_angle > PA_threshold
@@ -160,6 +160,7 @@ for Spf_PMU in 1:length(Spoofed_pmu_positions)
                 NLS_RMSE_abs_monte = [NLS_RMSE_abs_monte; NLS_RMSE_abs]
             else
                 NLS_PA_monte = [NLS_PA_monte; Principal_angle]
+                NLS_RMSE_abs_monte = [NLS_RMSE_abs_monte; LSE_RMSE_abs]
             end
         
         end

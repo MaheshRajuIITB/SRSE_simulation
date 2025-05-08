@@ -1,0 +1,22 @@
+*** This folder contains all simulation files related to Spoofing Resilient State Estimation ***
+
+#20250204_SRSE_multiple_GSAs 
+	--- Multiple attacks (0 to 5 PMUs are spoofed) in the System.
+	--- Percentage of Multiple attacks (0% to 100% PMUs are spoofed) in the System.  
+
+#20250228_PA_Chi_inadequency_ang_variation
+	---To check the performance of PA and Chi-square test for correct, inadequate weights and unit (without) weights.
+	---These values are calculated for angles varying between 0:0.1:10 and inadequate weights are changing based error introduced.
+
+#20250303_PA_Chi_inadequacy_ang_vary_baise_error
+	---To check the performance of PA and Chi-square test with adding bias error for correct, inadequate weights and unit (without) weights.
+	---These values are calculated for angles varying between 0:0.1:10 and inadequate weights are changing based error introduced.
+	--- Baise error in Magnitude and Phase angle based on Pragati Madam's paper. This error is introduced in 3 PMUs. 
+
+#20250313_SRSE_with_baise_error
+	---To check the performance of PA and Chi-square test with adding bias error for correct, inadequate weights and unit (without) weights.
+	---Baise error in Magnitude and Phase angle based on Pragati Madam's paper. This error is introduced in 3 PMUs. 
+	---Here there is no spoofing angle variation.
+
+#20250318_SRSE_distrubted_SE
+	---
