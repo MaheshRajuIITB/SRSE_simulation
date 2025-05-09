@@ -29,9 +29,9 @@ Z_correction = copy(Z_spf)
         Clusters_with_spoofed_PMUs = [PMUs_cluster[i] for i in 1:length(size_of_the_clsuters) if i != correction_delta_index]
         Clusters_with_spoofed_angles = [Cluster_with_values[i].- corrction_delta for i in 1:length(size_of_the_clsuters) if i != correction_delta_index]
 
-        for (p1, p2) in zip(Clusters_with_spoofed_PMUs,Clusters_with_spoofed_angles)
-            println("The cluster $p1 is spoofed with $(mean(p2)) ")
-        end
+        # for (p1, p2) in zip(Clusters_with_spoofed_PMUs,Clusters_with_spoofed_angles)
+        #     println("The cluster $p1 is spoofed with $(mean(p2)) ")
+        # end
 
 
 
@@ -48,10 +48,10 @@ Z_correction = copy(Z_spf)
         Z_scal_correction = W_inv*Z_correction_meas
         Qm, Rm = qr(H_scal)
         Principal_angle_corre = acosd((norm(inv(Rm')*(H_scal')*Z_scal_correction))/(norm(Z_scal_correction)))
-        println("Principal angle after correction :", Principal_angle_corre)
+        # println("Principal angle after correction :", Principal_angle_corre)
         
 
-        if Principal_angle_corre <= PA_threshold || pa_te == 10
+        if Principal_angle_corre <= PA_threshold || pa_te == 1 #pa_te should be 10 for accurate PA result and it should be 1 for RMSE result
 
             Residula_vector_NLS = Z_correction_meas - (H_meas*Correction_V_estimation_NLS)
 
