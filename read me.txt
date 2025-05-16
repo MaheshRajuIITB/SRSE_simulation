@@ -19,4 +19,56 @@
 	---Here there is no spoofing angle variation.
 
 #20250318_SRSE_distrubted_SE
-	---
+	---Applying PA test in distributed parts of the entire test system.
+
+#20250326_SRSE_algorithm
+	---Complete algorithm of Spoofing Resilient State Estimation.
+	---This file is designed only for one case at a time with 1000 monte simulations.
+	---Need to mentioned the number of poistions of spoofed PMUs along with spoofing angles.
+	---This quite similar to real time algorithm.
+
+#20250409_SRSE_algorithm_Single_GSA_fixed_spf_ang
+	---Spoofing one PMU at one time with fixed spoofingle angle for 1000 monte carlo simulations. 
+
+#20250416_SRSE_with_FDIA
+	---Response of SRSE algorithm when false data is introduced in measurements.
+
+#20250417_SRSE_ang_var_-1to1
+	---One PMU is spooofed with the spoofing angle varying from -1to1 deg.
+	---All PMUs in 30 bus system and selected 13 PMUs in 118 bus system.
+	---Fig.4: (System principal angle as a function of spoofing angle for IEEE 30 and IEEE 118 bus systems. The principal angle with spoofing is shown in red color, and after mitigation of GSA, it is shown in black color. The threshold value of PA is $0.1443^\circ$ for \hbox{IEEE 30} and $0.1107^\circ$ for \hbox{IEEE 118}.) and Fig.5: (Variation of RMSE of states with GSA and after mitigation of GSA for IEEE 30 and 	118 bus systems. RMSE with spoofing is shown in red color and after mitigation of GSA it is shown in black color.) in SRSE Paper are obtained from this simulation file only.
+
+#fun_20250115_SRSE_functions
+	---It contains the functions which related to perform Formation of NLS measurement matrix, Jacobian, NLS state estimation and etc. 
+	---This is main file for all functions. 
+	---Should not be changed.
+
+#fun_20250318_SRSE_functions
+	---In this file, the functions are related to distributed SRSE.
+
+#fun_20250326_SRSE_algorithm
+	---Contains entire SRSE algorithm as function.
+
+#data_20250104_IEEE_14bus
+#data_20250104_IEEE_30bus
+#data_20250104_IEEE_118bus
+	---information files of the test systems.
+
+#Previous_SE_30bus
+#Previous_SE_118bus
+	---information of values of pervious state estimation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,9 +1,0 @@
-This folder contains the values of Chi square and PA with correct, unit and inadequate weights for different standard deviations before correction algorithm.
-SD1 = 0.001 for voltage 0.002 for current;
-SD2 = 0.005 for voltage 0.01 for current;
-SD3 = 0.01 for voltage 0.02 for current.
-
-Threshold_Calculation - file is to calculate threshold values of Chi and PA for different cases. The values are given in the excel file named: Threshold values for IEEE 30 and IEEE 118 bus systems.
-
-Plot_before_SRSE - file is for comprasion of chi for different standard deviation and same for PA. Also comparision plot of Chi and PA for SD1
-	

@@ -51,7 +51,7 @@ Z_correction = copy(Z_spf)
         # println("Principal angle after correction :", Principal_angle_corre)
         
 
-        if Principal_angle_corre <= PA_threshold || pa_te == 1 #pa_te should be 10 for accurate PA result and it should be 1 for RMSE result
+        if Principal_angle_corre <= PA_threshold || pa_te == 10 #pa_te should be 10 for accurate PA result and it should be 1 for RMSE result
 
             Residula_vector_NLS = Z_correction_meas - (H_meas*Correction_V_estimation_NLS)
 

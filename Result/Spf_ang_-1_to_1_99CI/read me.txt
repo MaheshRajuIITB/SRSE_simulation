@@ -1,0 +1,4 @@
+-- This folder contains simulation results of Single GSA with spoofing angle varying from -1 to 1 deg.
+-- The Single GSA is applied on all the PMUs in IEEE 30 bus system and 13 selected PMUs in IEEE 118 bus system.
+-- The threshold value of PA is set at 99 confidence interval. For 70 confidence interval, the files are archived.
+
